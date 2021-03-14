@@ -2,6 +2,7 @@ export default
 class Stars {
 
     constructor(gameContext) {
+        this._gameContext = gameContext;
         this._stars = gameContext.physics.add.group({
             key: 'star',
             repeat: 11,
@@ -21,6 +22,7 @@ class Stars {
 
     colliderSomeOneStart(player, start, callbackWheCollider) {
         start.disableBody(true, true);
+        this._gameContext.sound.add("getstart", { loop: false }).play();
         callbackWheCollider();
     }
 

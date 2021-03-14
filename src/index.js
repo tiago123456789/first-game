@@ -29,6 +29,7 @@ class GameEngine {
         this._stars = null;
         this._cursors = null;
         this._titleNamePlayer = null;
+        this._gameOver = false;
     }
 
     preload() {
@@ -36,6 +37,11 @@ class GameEngine {
         this.load.image('ground', 'assets/platform.png');
         this.load.image('star', 'assets/star.png');
         this.load.image('bomb', 'assets/bomb.png');
+        this.load.audio("game", ["assets/music.mp3"]);
+        this.load.audio("gameover", ["assets/gameover.wav"]);
+        this.load.audio("getstart", ["assets/star.wav"]);
+
+
         this.load.spritesheet('dude',
             'assets/dude.png',
             { frameWidth: 32, frameHeight: 48 }
@@ -43,16 +49,18 @@ class GameEngine {
         this._score = 0;
         this._scoreText = null;
         this.__bombs = null;
+        this._gameSound = null
     }
 
     create() {
-      
         this.add.image(400, 300, 'sky');
         this._platforms = this.physics.add.staticGroup();
         this._platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         this._platforms.create(600, 400, 'ground');
         this._platforms.create(50, 250, 'ground');
         this._platforms.create(750, 220, 'ground');
+        this._gameSound = this.sound.add("game", { loop: true });
+        this._gameSound.play();
         this._scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
        
         if (!this._player) {
@@ -85,11 +93,14 @@ class GameEngine {
             }, this);
 
         this.physics.add.collider(this._bombs.get(), this._platforms);
-        this.physics.add.collider(this._player.get(), this._bombs.get(), () => {
+        this.physics.add.overlap(this._player.get(), this._bombs.get(), () => {
             this.physics.pause();
             this._player.get().setTint(0xff0000);
             this._player.stopMove()
+            this._gameSound.stop();
+            this.sound.add("getstart", { loop: false }).play();
             const gameOver = true;
+            this._gameOver = true;
             const resetGame = this.add.text(280, 300, 'Click here to reset game', {  cursor: 'pointer', fontSize: '15px', fill: '#000' });
             resetGame.setInteractive();
             resetGame.on('pointerdown', () => { location.reload() });
@@ -98,6 +109,9 @@ class GameEngine {
     }
 
     update() {
+        if (this._gameOver) {
+            return;
+        }
 
         if (this._cursors.left.isDown) {
             this._player.moveLeft();

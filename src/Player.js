@@ -1,6 +1,6 @@
 export default class Player {
     constructor(gameContext) {
-        this._player = gameContext.physics.add.sprite(100, 450, 'dude');
+        this._player = gameContext.physics.add.sprite(50, 450, 'dude');
 
         this._player.setBounce(0.2);
         this._player.setCollideWorldBounds(true);
